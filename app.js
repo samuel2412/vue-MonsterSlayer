@@ -4,23 +4,28 @@ new Vue({
     playerHp: 100,
     monsterHp: 100,
     gameIsRunning: false,
+    actionLog: [],
   },
   methods: {
     startGame: function () {
       this.gameIsRunning = true;
       this.playerHp = 100;
       this.monsterHp = 100;
+      this.actionLog = [];
     },
     attack: function () {
 
-      this.playerAttack(3, 10);
-      this.monsterAttack();
+      if (!this.playerAttack(3, 10)) {
+        this.monsterAttack();
+      }
 
     },
     specialAttack: function () {
 
-      this.playerAttack(10, 20);
-      this.monsterAttack();
+      if (!this.playerAttack(10, 20)) {
+        this.monsterAttack();
+      }
+
     },
     heal: function () {
 
@@ -29,6 +34,10 @@ new Vue({
       } else {
         this.playerHp = 100;
       }
+      this.actionLog.unshift({
+        isPlayer: true,
+        text: `Player healed 10 hp.`
+      });
       this.monsterAttack();
 
     },
@@ -39,12 +48,22 @@ new Vue({
       return Math.max(Math.floor(Math.random() * max) + 1, min);
     },
     monsterAttack: function () {
-      this.playerHp -= this.calculateDamage(5, 12);
-      this.checkWin()
+      var damage = this.calculateDamage(5, 12);
+      this.playerHp -= damage;
+      this.actionLog.unshift({
+        isPlayer: false,
+        text: `Monster attack caused ${damage} damage.`
+      });
+      this.checkWin();
     },
     playerAttack: function (min, max) {
-      this.monsterHp -= this.calculateDamage(min, max);
-      this.checkWin()
+      var damage = this.calculateDamage(min, max);
+      this.monsterHp -= damage;
+      this.actionLog.unshift({
+        isPlayer: true,
+        text: `Player attack caused ${damage} damage.`
+      });
+      return this.checkWin();
     },
 
     checkWin: function () {
